@@ -3,28 +3,16 @@ import axios from 'axios';
 import rssUrlValidator from './rssUrlValidator';
 import render from './render';
 
-const requestRss = (url) => {
-  axios.get(url)
-    .then(response => {
-      console.log('data -', response.data)
-      console.log('-----------------------------------------------------------')
-      console.log('-----------------------------------------------------------')
-      const data = response.data;
-      const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(data, 'application/xml');
-      console.log(xmlDoc)
-      return xmlDoc
-    })
-    .then((xmlDoc) => {
-      console.log('xmlDoc -', xmlDoc)
-    })
+const requestRss = (url, i18next) => {
+  console.log('url -', url)
+  return axios.get(url)
+    .then(() => console.log('data -', response.data))
     .catch((error) => {
-      console.log(error.message);
+      console.log('error.code -', error.code)
+      console.log('error.name -', error.name)
+      console.log('error.message -', error.message)
     });
-
 }
-
-
 
 export default (state, i18next) => {
   const watchedState = onChange(state, render('state'));
@@ -43,7 +31,11 @@ export default (state, i18next) => {
     rssUrlValidator(state.data.rssUrls, inputUrl, i18next)
       .then(() => {
         watchedState.state = 'processing';
-        requestRss(inputUrl)
+        requestRss(inputUrl, i18next)
+      })
+      .catch((error) => {
+        watchedState.state = 'failed';
+        watchedFeedback.currentUrl.error = error.message;
       })
       .then(() => {
         console.log('feedback -', state.currentUrl.feedback)
