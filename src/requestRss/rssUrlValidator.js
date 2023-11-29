@@ -1,11 +1,26 @@
 import * as yup from 'yup';
 
-export default (rssUrls, url) => {
+const setYupLocale = (lng, i18next) => {
+  yup.setLocale({
+    mixed: {
+      default: i18next.t('errors.incorrectUrl'),
+    },
+    string: {
+      url: i18next.t('errors.incorrectUrl'),
+      matches: i18next.t('errors.incorrectRss'),
+    },
+  });
+};
+
+export default (rssUrls, url, i18next) => {
+  const currentLanguage = i18next.language;
+  setYupLocale(currentLanguage, i18next);
+
   const schema = yup.string()
-    .url('Ссылка должна быть валидным URL')
+    .url()
     .test({
       name: 'unique',
-      message: 'RSS уже существует',
+      message: i18next.t('errors.existsUrl'),
       test(value) {
         return !rssUrls.some((rss) => rss.url === value);
       },
@@ -13,5 +28,5 @@ export default (rssUrls, url) => {
 
   return schema.validate(url)
     .then(() => true)
-    .catch((error) => { throw error; });
+    .catch((error) => { throw error });
 };
