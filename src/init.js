@@ -1,20 +1,13 @@
-
 import i18next from 'i18next';
 import resources from './locales/index';
-import requestRss from './requestRss/main';
+import app from './app/app';
 
-export default async () => {
-  const i18nextInstance = i18next.createInstance();
-  await i18nextInstance.init({
-    lng: 'ru',
-    resources,
-  });
-
+export default () => {
   const state = {
-    state: 'filling',
+    state: 'filling', // filling, processing, processed, failed
     data: {
-      rssUrls: [{ id: 1, url: 'https://lenta.ru/rss' }],
-      rss: [],
+      feeds: [],
+      posts: [],
     },
     currentUrl: {
       inputUrl: '',
@@ -23,5 +16,14 @@ export default async () => {
     },
   };
 
-  requestRss(state, i18nextInstance);
+  const defaultLanguage = 'ru';
+
+  const i18nextInstance = i18next.createInstance();
+  i18nextInstance.init({
+    lng: defaultLanguage,
+    resources,
+  })
+  .then(() => {
+    app(state, i18nextInstance);
+  });
 };

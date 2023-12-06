@@ -7,13 +7,13 @@ const setYupLocale = (lng, i18next) => {
     },
     string: {
       url: i18next.t('errors.incorrectUrl'),
-      matches: i18next.t('errors.incorrectRss'),
     },
   });
 };
 
-export default (rssUrls, url, i18next) => {
+const urlValidator = (feeds, url, i18next) => {
   const currentLanguage = i18next.language;
+
   setYupLocale(currentLanguage, i18next);
 
   const schema = yup.string()
@@ -22,7 +22,7 @@ export default (rssUrls, url, i18next) => {
       name: 'unique',
       message: i18next.t('errors.existsUrl'),
       test(value) {
-        return !rssUrls.some((rss) => rss.url === value);
+        return !feeds.some((feed) => value.includes(feed.link));
       },
     });
 
@@ -30,3 +30,5 @@ export default (rssUrls, url, i18next) => {
     .then(() => true)
     .catch((error) => { throw error });
 };
+
+export default urlValidator;

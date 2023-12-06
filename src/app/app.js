@@ -1,22 +1,13 @@
 import onChange from 'on-change';
-import axios from 'axios';
-import rssUrlValidator from './rssUrlValidator';
+import  urlValidator from './validator';
+import getRss from './getRss';
 import render from './render';
-
-const requestRss = (url, i18next) => {
-  console.log('url -', url)
-  return axios.get(url)
-    .then(() => console.log('data -', response.data))
-    .catch((error) => {
-      console.log('error.code -', error.code)
-      console.log('error.name -', error.name)
-      console.log('error.message -', error.message)
-    });
-}
 
 export default (state, i18next) => {
   const watchedState = onChange(state, render('state'));
   const watchedFeedback = onChange(state, render('feedback'));
+  const watchedFeeds = onChange(state, render('feeds'));
+  const watchedPosts = onChange(state, render('posts'));
 
   const form = document.querySelector('.rss-form');
 
@@ -28,19 +19,27 @@ export default (state, i18next) => {
   const buttonAdd = form.querySelector('button[aria-label="add"]');
   buttonAdd.addEventListener('click', () => {
     const inputUrl = state.currentUrl.inputUrl
-    rssUrlValidator(state.data.rssUrls, inputUrl, i18next)
+    urlValidator(state.data.feeds, inputUrl, i18next)
       .then(() => {
         watchedState.state = 'processing';
-        requestRss(inputUrl, i18next)
       })
-      .catch((error) => {
-        watchedState.state = 'failed';
-        watchedFeedback.currentUrl.error = error.message;
+      .then(() => getRss(inputUrl, i18next))
+      .then((rss) => {
+        const feedId = state.data.feeds.length + 1;
+        watchedFeeds.data.feeds.push({ id: feedId, ...rss.feeds });
+        const currentPosts = [];
+        rss.items.forEach((item) => {
+          currentPosts.push({ 
+          id: state.data.posts.length + currentPosts.length + 1,
+          feedId,
+          ...item,
+          })
+        });
+        watchedPosts.data.posts = [...currentPosts, ...state.data.posts];
+        console.log('state.data.feeds', state.data.posts)
       })
       .then(() => {
-        console.log('feedback -', state.currentUrl.feedback)
         watchedFeedback.currentUrl.feedback = i18next.t('feedback.uploadedRss');
-        console.log('feedback -', state.currentUrl.feedback)
         watchedState.state = 'processed';
       })
       .catch((error) => {
