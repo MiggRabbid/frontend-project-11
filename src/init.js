@@ -23,7 +23,7 @@ export default () => {
     lng: defaultLanguage,
     resources,
   })
-  .then(() => {
-    app(state, i18nextInstance);
-  });
+    .then(() => {
+      app(state, i18nextInstance);
+    });
 };
