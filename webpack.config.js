@@ -1,5 +1,3 @@
-// Generated using webpack-cli https://github.com/webpack/webpack-cli
-
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
@@ -18,12 +16,14 @@ const config = {
     plugins: [
         new HtmlWebpackPlugin({
             template: 'index.html',
-        }),
+            filename: 'index.html',
+          }),
     ],
     module: {
         rules: [
             {
                 test: /\.(js|jsx)$/i,
+                exclude: /node_modules/,
                 loader: 'babel-loader',
             },
             {
@@ -36,11 +36,8 @@ const config = {
             },
             {
                 test: /\.scss$/,
-                use: [ 'style-loader', 'css-loader', 'sass-loader' ]
-              },
-
-            // Add your rules for custom modules here
-            // Learn more about loaders from https://webpack.js.org/loaders/
+                use: ['style-loader', 'css-loader', 'sass-loader']
+            },
         ],
     },
     output: {

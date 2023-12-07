@@ -1,5 +1,5 @@
 import i18next from 'i18next';
-import resources from './locales/index';
+import resources from '../locales/index';
 import app from './app/app';
 
 export default () => {
@@ -23,7 +23,7 @@ export default () => {
     lng: defaultLanguage,
     resources,
   })
-  .then(() => {
-    app(state, i18nextInstance);
-  });
+    .then(() => {
+      app(state, i18nextInstance);
+    });
 };

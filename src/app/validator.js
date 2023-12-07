@@ -28,7 +28,7 @@ const urlValidator = (feeds, url, i18next) => {
 
   return schema.validate(url)
     .then(() => true)
-    .catch((error) => { throw error });
+    .catch((error) => { throw error; });
 };
 
 export default urlValidator;

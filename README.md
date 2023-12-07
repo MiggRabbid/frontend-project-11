@@ -8,4 +8,21 @@
 
 ---
 ## «Rss Reader»
-Cервис для агрегации RSS-потоков
+[Cервис для агрегации RSS-потоков](https://frontend-project-11-miggrabbid.vercel.app/)
+По заапросу получает и отображает rss-ленту. А так же обновляет её раз в 5 секунд.
+
+---
+## Порядок установки и системные требования
+#### Порядок установки:
+```
+git clone https://github.com/MiggRabbid/frontend-project-11
+frontend-project-11
+make install
+make build
+
+make dev //для запуска на локальном хосте
+```
+
+#### Системные требования:
+- Node.js v20.10.0
+- npm 10.2.4
