@@ -1,6 +1,7 @@
 import onChange from 'on-change';
 import urlValidator from './validator';
 import getRss from './getRss';
+import updateRss from './updateRss';
 import render from './render';
 
 export default (state, i18next) => {
@@ -10,13 +11,15 @@ export default (state, i18next) => {
   const watchedPosts = onChange(state, render('posts'));
 
   const form = document.querySelector('.rss-form');
+  const input = form.querySelector('input[id="url-input"]');
+  const buttonAdd = form.querySelector('button[aria-label="add"]');
 
-  const inputUrl = form.querySelector('input[id="url-input"]');
-  inputUrl.addEventListener('input', (event) => {
-    state.currentUrl.inputUrl = event.target.value;
+  updateRss(state, i18next, watchedPosts);
+
+  input.addEventListener('input', (event) => {
+    state.currentUrl.inputUrl = event.target.value.trim();
   });
 
-  const buttonAdd = form.querySelector('button[aria-label="add"]');
   buttonAdd.addEventListener('click', () => {
     const { inputUrl } = state.currentUrl;
     urlValidator(state.data.feeds, inputUrl, i18next)
@@ -26,7 +29,11 @@ export default (state, i18next) => {
       .then(() => getRss(inputUrl, i18next))
       .then((rss) => {
         const feedId = state.data.feeds.length + 1;
-        watchedFeeds.data.feeds.push({ id: feedId, ...rss.feeds });
+        watchedFeeds.data.feeds.push({
+          id: feedId,
+          ...rss.feeds,
+          link: inputUrl,
+        });
         const currentPosts = [];
         rss.items.forEach((item) => {
           currentPosts.push({
@@ -36,15 +43,14 @@ export default (state, i18next) => {
           });
         });
         watchedPosts.data.posts = [...currentPosts, ...state.data.posts];
-        console.log('state.data.feeds', state.data.posts);
       })
       .then(() => {
         watchedFeedback.currentUrl.feedback = i18next.t('feedback.uploadedRss');
         watchedState.state = 'processed';
       })
       .catch((error) => {
-        watchedState.state = 'failed';
         watchedFeedback.currentUrl.error = error.message;
+        watchedState.state = 'failed';
       })
       .finally(() => {
         state.state = 'filling';

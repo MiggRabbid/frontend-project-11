@@ -52,12 +52,10 @@ const renderFeeds = (path, value) => {
   const listGroup = feeds.querySelector('.list-group');
   listGroup.innerHTML = '';
   value.forEach((feed) => {
-    console.log(feed)
     const li = document.createElement('li');
     li.classList.add('list-group-item', 'border-0', 'border-end-0');
     li.innerHTML = `<h3 class="h6 m-0">${feed.title}</h3><p class="m-0 small text-black-50">${feed.description}</p>`;
     listGroup.prepend(li);
-    console.log(listGroup)
   });
 };
 

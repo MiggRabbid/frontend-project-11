@@ -16,7 +16,7 @@ const parsData = (url, parser) => getData(url).then((response) => parser.parseFr
       feeds: {
         title: xml.querySelector('title').textContent,
         description: xml.querySelector('description').textContent,
-        link: xml.querySelector('link').textContent,
+        url: xml.querySelector('link').textContent,
       },
       items: [],
     };

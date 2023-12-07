@@ -1,5 +1,5 @@
 import i18next from 'i18next';
-import resources from './locales/index';
+import resources from '../locales/index';
 import app from './app/app';
 
 export default () => {
