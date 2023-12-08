@@ -47,7 +47,9 @@ export default (url, i18next) => {
     .then((rss) => rss)
     .catch((error) => {
       console.error('Error fetching RSS:', error);
-      error.message = i18next.t('errors.incorrectRss');
+      if (error.message !== i18next.t('errors.networkError')) {
+        error.message = i18next.t('errors.incorrectRss')
+      };
       throw error;
     });
 };
