@@ -8,10 +8,16 @@ const updateLinkOrModal = (state, watcher, event) => {
   const currentId = Number(event.target.dataset.id);
   const indexToUpdate = state.data.posts.findIndex((post) => post.id === currentId);
   if (indexToUpdate !== -1) {
-    watcher[indexToUpdate] = {
+    watcher[indexToUpdate].linkStatus = {
       ...state.data.posts[indexToUpdate],
       linkStatus: 'viewed',
     };
+
+    const updatedWatcher = {
+      ...state.data.posts[indexToUpdate],
+      linkStatus: 'viewed',
+   };
+   watcher[indexToUpdate] = updatedWatcher;
   }
 };
 
@@ -24,12 +30,14 @@ const handleLinksAndViewModal = (state) => {
 
   postLinks.forEach((link) => {
     link.addEventListener('click', (event) => {
+      event.preventDefault();
       updateLinkOrModal(state, watchedLinks, event);
     });
   });
 
   postViews.forEach((view) => {
     view.addEventListener('click', (event) => {
+      event.preventDefault();
       updateLinkOrModal(state, watchedModal, event);
     });
   });
@@ -54,13 +62,18 @@ const processRssData = (state, watchedFeeds, watchedPosts, rss, inputUrl) => {
   watchedPosts.data.posts = [...currentPosts, ...state.data.posts];
 };
 
-const handleButtonAddClick = (state, i18next, form, watchedState, watchedFeedback, watchedFeeds, watchedPosts) => {
+const handleButtonAddClick = (state, i18next, form, watchers) => {
+  const [watchedState, watchedFeedback, watchedFeeds, watchedPosts] = watchers;
   const buttonAdd = form.querySelector('button[aria-label="add"]');
 
-  buttonAdd.addEventListener('click', () => {
+  buttonAdd.addEventListener('click', (event) => {
+    event.preventDefault();
+
     const { inputUrl } = state.currentUrl;
     urlValidator(state.data.feeds, inputUrl, i18next)
-      .then(() => watchedState.state = 'processing')
+      .then(() => {
+        watchedState.state = 'processing';
+      })
       .then(() => getRss(inputUrl, i18next))
       .then((rss) => processRssData(state, watchedFeeds, watchedPosts, rss, inputUrl))
       .then(() => {
@@ -74,12 +87,11 @@ const handleButtonAddClick = (state, i18next, form, watchedState, watchedFeedbac
       })
       .finally(() => {
         state.state = 'filling';
+        state.currentUrl.inputUrl = '';
         state.currentUrl.error = null;
         state.currentUrl.feedback = null;
         handleLinksAndViewModal(state);
       });
-
-    !form.reset();
   });
 };
 
@@ -95,7 +107,7 @@ export default (state, i18next) => {
   input.addEventListener('input', (event) => {
     state.currentUrl.inputUrl = event.target.value.trim();
   });
-
-  handleButtonAddClick(state, i18next, form, watchedState, watchedFeedback, watchedFeeds, watchedPosts);
+  const watchers = [watchedState, watchedFeedback, watchedFeeds, watchedPosts];
+  handleButtonAddClick(state, i18next, form, watchers);
   updateRss(state, i18next, watchedPosts, handleLinksAndViewModal);
 };

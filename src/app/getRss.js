@@ -7,12 +7,12 @@ const addProxy = (url) => {
   return proxyUrl.toString();
 };
 
-const getData = (url, i18next) => {
-  return axios.get(addProxy(url), { timeout: 5000 })
-    .catch((error) => {
-      error.message = i18next.t('errors.networkError');
-      throw error;
-    })};
+const getData = (url, i18next) => axios.get(addProxy(url), { timeout: 5000 })
+  .catch((error) => {
+    const newError = new Error(i18next.t('errors.networkError'));
+    newError.stack = error.stack;
+    throw newError;
+  });
 
 const extractDataFromItem = (item) => ({
   title: item.querySelector('title').textContent,
@@ -48,8 +48,11 @@ export default (url, i18next) => {
     .catch((error) => {
       console.error('Error fetching RSS:', error);
       if (error.message !== i18next.t('errors.networkError')) {
-        error.message = i18next.t('errors.incorrectRss')
-      };
-      throw error;
+        const newError = new Error(i18next.t('errors.incorrectRss'));
+        newError.stack = error.stack;
+        throw newError;
+      } else {
+        throw error;
+      }
     });
 };

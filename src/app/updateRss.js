@@ -2,7 +2,7 @@ import getRss from './getRss';
 
 const updateRss = (state, i18next, watchedPosts, handleLinksAndViewModal) => {
   const { feeds, posts } = state.data;
-  
+
   feeds.forEach((feed) => {
     const feedPosts = posts.filter((post) => post.feedId === feed.id);
 
@@ -18,7 +18,7 @@ const updateRss = (state, i18next, watchedPosts, handleLinksAndViewModal) => {
         });
       });
 
-      const isNewPost = (newPost, OldPosts) => !OldPosts.some((feedPost) => feedPost.link === newPost.link);
+      const isNewPost = (newPost, OldPosts) => !OldPosts.some((post) => post.link === newPost.link);
       const resultPost = newPosts.filter((newPost) => isNewPost(newPost, feedPosts));
 
       watchedPosts.data.posts.unshift(...resultPost);

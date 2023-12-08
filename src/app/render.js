@@ -1,4 +1,4 @@
-const renderState = (path, value, prevValue) => {
+const renderState = (path, value) => {
   const rssForm = document.querySelector('.rss-form');
   const button = document.querySelector('button[aria-label="add"]');
 
@@ -28,7 +28,7 @@ const renderState = (path, value, prevValue) => {
   }
 };
 
-const renderFeedback = (path, value, prevValue) => {
+const renderFeedback = (path, value) => {
   const rssForm = document.querySelector('.rss-form');
   const newFeedback = document.createElement('p');
   const oldFeedback = rssForm.parentElement.querySelector('.feedback');
@@ -48,7 +48,7 @@ const renderFeedback = (path, value, prevValue) => {
   rssForm.parentElement.append(newFeedback);
 };
 
-const renderFeeds = (path, value, prevValue) => {
+const renderFeeds = (path, value) => {
   const feeds = document.querySelector('.feeds');
   let card;
 
@@ -79,8 +79,8 @@ const renderPosts = (path, value, prevValue) => {
   if (prevValue === undefined) {
     newPosts = value;
   } else if (prevValue !== undefined) {
-    const isObjectInPreviousValue = (newPost) => prevValue.some((prevPost) => prevPost.id === newPost.id);
-    newPosts = value.filter((newPost) => !isObjectInPreviousValue(newPost));
+    const isObjInPrevValue = (newPost) => prevValue.some((prevPost) => prevPost.id === newPost.id);
+    newPosts = value.filter((newPost) => !isObjInPrevValue(newPost));
   }
 
   const posts = document.querySelector('.posts');
@@ -101,7 +101,7 @@ const renderPosts = (path, value, prevValue) => {
   newPosts.forEach((post) => {
     const li = document.createElement('li');
     li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
-    
+
     let link;
 
     if (post.linkStatus === 'new') {
@@ -117,7 +117,7 @@ const renderPosts = (path, value, prevValue) => {
   });
 };
 
-const renderLink = (path, value, prevValue) => {
+const renderLink = (path, value) => {
   const link = document.querySelector(`a[data-id="${value.id}"]`);
 
   link.classList.remove('fw-bold');
@@ -139,11 +139,11 @@ const renderModal = (path, value, prevValue) => {
 
 export default (renderType) => (path, value, previousValue) => {
   const render = {
-    state: (currentPath, newValue, oldValue) => renderState(currentPath, newValue, oldValue),
-    feedback: (currentPath, newValue, oldValue) => renderFeedback(currentPath, newValue, oldValue),
-    feeds: (currentPath, newValue, oldValue) => renderFeeds(currentPath, newValue, oldValue),
+    state: (currentPath, newValue) => renderState(currentPath, newValue),
+    feedback: (currentPath, newValue) => renderFeedback(currentPath, newValue),
+    feeds: (currentPath, newValue) => renderFeeds(currentPath, newValue),
     posts: (currentPath, newValue, oldValue) => renderPosts(currentPath, newValue, oldValue),
-    link: (currentPath, newValue, oldValue) => renderLink(currentPath, newValue, oldValue),
+    link: (currentPath, newValue) => renderLink(currentPath, newValue),
     modal: (currentPath, newValue, oldValue) => renderModal(currentPath, newValue, oldValue),
   };
 
