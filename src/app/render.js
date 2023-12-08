@@ -1,22 +1,29 @@
 const renderState = (path, value, prevValue) => {
   const rssForm = document.querySelector('.rss-form');
   const button = document.querySelector('button[aria-label="add"]');
+
   if (value === 'filling') {
     button.disabled = false;
   }
   if (value === 'processing') {
     const oldFeedback = document.querySelector('.feedback');
+
     if (oldFeedback) oldFeedback.remove();
+
     button.disabled = true;
+
     const input = rssForm.querySelector('input[id="url-input"]');
     input.classList.remove('is-invalid');
   }
+
   if (value === 'processed') {
     button.disabled = false;
   }
+
   if (value === 'failed') {
     button.disabled = false;
     const input = rssForm.querySelector('input[id="url-input"]');
+
     input.classList.add('is-invalid');
   }
 };
@@ -25,21 +32,26 @@ const renderFeedback = (path, value, prevValue) => {
   const rssForm = document.querySelector('.rss-form');
   const newFeedback = document.createElement('p');
   const oldFeedback = rssForm.parentElement.querySelector('.feedback');
+
   if (oldFeedback) oldFeedback.remove();
+
   if (path === 'currentUrl.feedback') {
     newFeedback.classList.add('feedback', 'm-0', 'position-absolute', 'small', 'text-success');
     newFeedback.textContent = value;
   }
+
   if (path === 'currentUrl.error') {
     newFeedback.classList.add('feedback', 'm-0', 'position-absolute', 'small', 'text-danger');
     newFeedback.textContent = value;
   }
+
   rssForm.parentElement.append(newFeedback);
 };
 
 const renderFeeds = (path, value, prevValue) => {
   const feeds = document.querySelector('.feeds');
   let card;
+
   if (feeds.querySelector('.card')) {
     card = feeds.querySelector('.card');
   } else {
@@ -49,8 +61,10 @@ const renderFeeds = (path, value, prevValue) => {
     <ul class="list-group border-0 rounded-0"></ul>`;
     feeds.append(card);
   }
+
   const listGroup = feeds.querySelector('.list-group');
   listGroup.innerHTML = '';
+
   value.forEach((feed) => {
     const li = document.createElement('li');
     li.classList.add('list-group-item', 'border-0', 'border-end-0');
@@ -87,8 +101,9 @@ const renderPosts = (path, value, prevValue) => {
   newPosts.forEach((post) => {
     const li = document.createElement('li');
     li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
-
+    
     let link;
+
     if (post.linkStatus === 'new') {
       link = `<a href="${post.link}" class="fw-bold" data-id="${post.id}" target="_blank" rel="noopener noreferrer">${post.title}</a>`;
     } else if (post.linkStatus === 'viewed') {
