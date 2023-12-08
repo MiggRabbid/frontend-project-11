@@ -16,8 +16,8 @@ const updateLinkOrModal = (state, watcher, event) => {
     const updatedWatcher = {
       ...state.data.posts[indexToUpdate],
       linkStatus: 'viewed',
-   };
-   watcher[indexToUpdate] = updatedWatcher;
+    };
+    watcher[indexToUpdate] = updatedWatcher;
   }
 };
 
