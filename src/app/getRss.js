@@ -7,7 +7,12 @@ const addProxy = (url) => {
   return proxyUrl.toString();
 };
 
-const getData = (url) => axios.get(addProxy(url));
+const getData = (url, i18next) => {
+  return axios.get(addProxy(url))
+    .catch((error) => {
+      error.message = i18next.t('errors.networkError');
+      throw error;
+    })};
 
 const extractDataFromItem = (item) => ({
   title: item.querySelector('title').textContent,
@@ -15,7 +20,7 @@ const extractDataFromItem = (item) => ({
   link: item.querySelector('link').textContent,
 });
 
-const parseXml = (url, parser) => getData(url)
+const parseXml = (url, parser, i18next) => getData(url, i18next)
   .then((response) => {
     const xml = parser.parseFromString(response.data.contents, 'application/xml');
     const items = xml.querySelectorAll('item');
@@ -38,7 +43,7 @@ const parseXml = (url, parser) => getData(url)
 
 export default (url, i18next) => {
   const parser = new DOMParser();
-  return parseXml(url, parser)
+  return parseXml(url, parser, i18next)
     .then((rss) => rss)
     .catch((error) => {
       console.error('Error fetching RSS:', error);

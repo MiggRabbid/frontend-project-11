@@ -24,7 +24,7 @@ const updateRss = (state, i18next, watchedPosts, handleLinksAndViewModal) => {
       .finally(() => handleLinksAndViewModal(state));
   });
 
-  setTimeout(() => updateRss(state, i18next, watchedPosts, handleLinksAndViewModal), 12000);
+  setTimeout(() => updateRss(state, i18next, watchedPosts, handleLinksAndViewModal), 5000);
 };
 
 export default updateRss;
