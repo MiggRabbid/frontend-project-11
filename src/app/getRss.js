@@ -8,7 +8,7 @@ const addProxy = (url) => {
 };
 
 const getData = (url, i18next) => {
-  return axios.get(addProxy(url))
+  return axios.get(addProxy(url), { timeout: 5000 })
     .catch((error) => {
       error.message = i18next.t('errors.networkError');
       throw error;
