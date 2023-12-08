@@ -1,27 +1,27 @@
-const renderState = (path, value) => {
+const renderState = (path, value, prevValue) => {
   const rssForm = document.querySelector('.rss-form');
   const button = document.querySelector('button[aria-label="add"]');
-  if (path === 'state' && value === 'filling') {
+  if (value === 'filling') {
     button.disabled = false;
   }
-  if (path === 'state' && value === 'processing') {
+  if (value === 'processing') {
     const oldFeedback = document.querySelector('.feedback');
     if (oldFeedback) oldFeedback.remove();
     button.disabled = true;
     const input = rssForm.querySelector('input[id="url-input"]');
     input.classList.remove('is-invalid');
   }
-  if (path === 'state' && value === 'processed') {
+  if (value === 'processed') {
     button.disabled = false;
   }
-  if (path === 'state' && value === 'failed') {
+  if (value === 'failed') {
     button.disabled = false;
     const input = rssForm.querySelector('input[id="url-input"]');
     input.classList.add('is-invalid');
   }
 };
 
-const renderFeedback = (path, value) => {
+const renderFeedback = (path, value, prevValue) => {
   const rssForm = document.querySelector('.rss-form');
   const newFeedback = document.createElement('p');
   const oldFeedback = rssForm.parentElement.querySelector('.feedback');
@@ -37,7 +37,7 @@ const renderFeedback = (path, value) => {
   rssForm.parentElement.append(newFeedback);
 };
 
-const renderFeeds = (path, value) => {
+const renderFeeds = (path, value, prevValue) => {
   const feeds = document.querySelector('.feeds');
   let card;
   if (feeds.querySelector('.card')) {
@@ -59,36 +59,78 @@ const renderFeeds = (path, value) => {
   });
 };
 
-const renderPosts = (path, value) => {
+const renderPosts = (path, value, prevValue) => {
+  let newPosts;
+
+  if (prevValue === undefined) {
+    newPosts = value;
+  } else if (prevValue !== undefined) {
+    const isObjectInPreviousValue = (newPost) => prevValue.some((prevPost) => prevPost.id === newPost.id);
+    newPosts = value.filter((newPost) => !isObjectInPreviousValue(newPost));
+  }
+
   const posts = document.querySelector('.posts');
   let card;
+
   if (posts.querySelector('.card')) {
     card = posts.querySelector('.card');
   } else {
     card = document.createElement('div');
     card.classList.add('card', 'border-0');
     card.innerHTML = `<div class="card-body"><h2 class="card-title h4">Посты</h2></div>
-    <ul class="list-group border-0 rounded-0"></ul>`;
+<ul class="list-group border-0 rounded-0"></ul>`;
     posts.append(card);
   }
+
   const listGroup = posts.querySelector('.list-group');
-  listGroup.innerHTML = '';
-  value.forEach((post) => {
+
+  newPosts.forEach((post) => {
     const li = document.createElement('li');
     li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
-    li.innerHTML = `<a href="${post.link}" class="fw-bold" data-id="${post.id}" target="_blank" rel="noopener noreferrer">${post.title}</a>
-<button type="button" class="btn btn-outline-primary btn-sm" data-id="2" data-bs-toggle="modal" data-bs-target="#modal">Просмотр</button>`;
-    listGroup.append(li);
+
+    let link;
+    if (post.linkStatus === 'new') {
+      link = `<a href="${post.link}" class="fw-bold" data-id="${post.id}" target="_blank" rel="noopener noreferrer">${post.title}</a>`;
+    } else if (post.linkStatus === 'viewed') {
+      link = `<a href="${post.link}" class="fw-normal link-secondary" data-id="${post.id}" target="_blank" rel="noopener noreferrer">${post.title}</a>`;
+    }
+
+    li.innerHTML = ` ${link}
+<button type="button" class="btn btn-outline-primary btn-sm" data-id="${post.id}" data-bs-toggle="modal" data-bs-target="#modal">Просмотр</button>`;
+
+    listGroup.prepend(li);
   });
 };
 
-export default (renderType) => (path, value) => {
+const renderLink = (path, value, prevValue) => {
+  const link = document.querySelector(`a[data-id="${value.id}"]`);
+
+  link.classList.remove('fw-bold');
+  link.classList.add('fw-normal', 'link-secondary');
+};
+
+const renderModal = (path, value, prevValue) => {
+  renderLink(path, value, prevValue);
+
+  const modal = document.querySelector('div[id="modal"]');
+  const modalTitle = modal.querySelector('.modal-title');
+  const modalBody = modal.querySelector('.modal-body');
+  const read = modal.querySelector('.modal-footer').querySelector('a');
+
+  modalTitle.textContent = value.title;
+  modalBody.textContent = value.description;
+  read.href = value.link;
+};
+
+export default (renderType) => (path, value, previousValue) => {
   const render = {
-    state: (currentPath, newValue) => renderState(currentPath, newValue),
-    feedback: (currentPath, newValue) => renderFeedback(currentPath, newValue),
-    feeds: (currentPath, newValue) => renderFeeds(currentPath, newValue),
-    posts: (currentPath, newValue) => renderPosts(currentPath, newValue),
+    state: (currentPath, newValue, oldValue) => renderState(currentPath, newValue, oldValue),
+    feedback: (currentPath, newValue, oldValue) => renderFeedback(currentPath, newValue, oldValue),
+    feeds: (currentPath, newValue, oldValue) => renderFeeds(currentPath, newValue, oldValue),
+    posts: (currentPath, newValue, oldValue) => renderPosts(currentPath, newValue, oldValue),
+    link: (currentPath, newValue, oldValue) => renderLink(currentPath, newValue, oldValue),
+    modal: (currentPath, newValue, oldValue) => renderModal(currentPath, newValue, oldValue),
   };
 
-  render[renderType](path, value);
+  render[renderType](path, value, previousValue);
 };

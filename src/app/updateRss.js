@@ -1,25 +1,30 @@
 import getRss from './getRss';
 
-const updateRss = (state, i18next, watchedPosts) => {
+const updateRss = (state, i18next, watchedPosts, handleLinksAndViewModal) => {
   const { feeds, posts } = state.data;
   feeds.forEach((feed) => {
     const feedPosts = posts.filter((post) => post.feedId === feed.id);
     getRss(feed.link, i18next).then((rss) => {
       const newPosts = [];
       rss.items.forEach((item) => {
-        newPosts.push({
+        newPosts.unshift({
           id: posts.length + newPosts.length + 1,
           feedId: feed.id,
           ...item,
+          linkStatus: 'new',
+
         });
       });
 
-      const resultPost = newPosts.filter((newPost) => !feedPosts.some((feedPost) => feedPost.link === newPost.link));
+      const isNewPost = (newPost, OldPosts) => !OldPosts.some((feedPost) => feedPost.link === newPost.link);
+      const resultPost = newPosts.filter((newPost) => isNewPost(newPost, feedPosts));
 
-      watchedPosts.data.posts = [...resultPost, ...state.data.posts];
-    }).catch((error) => console.error(error));
+      watchedPosts.data.posts.unshift(...resultPost);
+    }).catch((error) => console.error(error))
+      .finally(() => handleLinksAndViewModal(state));
   });
-  setTimeout(() => updateRss(state, i18next, watchedPosts), 5000);
+
+  setTimeout(() => updateRss(state, i18next, watchedPosts, handleLinksAndViewModal), 12000);
 };
 
 export default updateRss;

@@ -14,6 +14,7 @@ export default () => {
       error: null,
       feedback: null,
     },
+    modal: 'disable',
   };
 
   const defaultLanguage = 'ru';
