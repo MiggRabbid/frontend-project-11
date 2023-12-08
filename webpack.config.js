@@ -24,7 +24,6 @@ const config = {
             {
                 test: /\.(js|jsx)$/i,
                 exclude: /node_modules/,
-                loader: 'babel-loader',
             },
             {
                 test: /\.(eot|svg|ttf|woff|woff2|png|jpg|gif)$/i,
