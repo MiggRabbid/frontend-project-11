@@ -3,7 +3,7 @@ import * as yup from 'yup';
 const setYupLocale = (lng, i18next) => {
   yup.setLocale({
     mixed: {
-      default: i18next.t('errors.incorrectUrl'),
+      default: i18next.t('errors.emptyUrl'),
     },
     string: {
       url: i18next.t('errors.incorrectUrl'),
@@ -18,6 +18,7 @@ const urlValidator = (feeds, url, i18next) => {
 
   const schema = yup.string()
     .url()
+    .required(i18next.t('errors.emptyUrl'))
     .test({
       name: 'unique',
       message: i18next.t('errors.existsUrl'),

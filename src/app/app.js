@@ -79,7 +79,7 @@ const handleButtonAddClick = (state, i18next, form, watchedState, watchedFeedbac
         handleLinksAndViewModal(state);
       });
 
-    // !form.reset();
+    !form.reset();
   });
 };
 
