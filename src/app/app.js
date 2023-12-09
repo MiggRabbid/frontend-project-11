@@ -30,14 +30,12 @@ const handleLinksAndViewModal = (state) => {
 
   postLinks.forEach((link) => {
     link.addEventListener('click', (event) => {
-      event.preventDefault();
       updateLinkOrModal(state, watchedLinks, event);
     });
   });
 
   postViews.forEach((view) => {
     view.addEventListener('click', (event) => {
-      event.preventDefault();
       updateLinkOrModal(state, watchedModal, event);
     });
   });

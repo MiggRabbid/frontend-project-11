@@ -3,3 +3,7 @@ node_modules/
 public/
 
 webpack.config.js
+
+.eslintignore
+
+babel.config.json

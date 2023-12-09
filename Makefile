@@ -1,20 +1,21 @@
 install:
 	npm ci
 
+dev:
+	npx webpack serve --mode development
+
+build:
+	rm -rf dist
+	NODE_ENV=production npx webpack
+
+clean:
+	rm -rf dist/
+	
 lint:
 	npx eslint .
 
 lintfix:
 	npx eslint --fix .
-
-dev:
-	npx webpack serve --mode development
-
-clean:
-	rm -rf dist/
-
-build:
-	NODE_ENV=production npx webpack
 
 test:
 	npm test
