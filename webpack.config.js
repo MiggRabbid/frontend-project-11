@@ -1,6 +1,5 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const WorkboxWebpackPlugin = require('workbox-webpack-plugin');
 
 const isProduction = process.env.NODE_ENV == 'production';
 
@@ -50,8 +49,6 @@ const config = {
 module.exports = () => {
   if (isProduction) {
     config.mode = 'production';
-
-    config.plugins.push(new WorkboxWebpackPlugin.GenerateSW());
   } else {
     config.mode = 'development';
   }
