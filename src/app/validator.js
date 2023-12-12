@@ -1,27 +1,12 @@
 import * as yup from 'yup';
 
-const setYupLocale = (lng, i18next) => {
-  yup.setLocale({
-    mixed: {
-      default: i18next.t('errors.emptyUrl'),
-    },
-    string: {
-      url: i18next.t('errors.incorrectUrl'),
-    },
-  });
-};
-
-const urlValidator = (feeds, url, i18next) => {
-  const currentLanguage = i18next.language;
-
-  setYupLocale(currentLanguage, i18next);
-
+const urlValidator = (feeds, url) => {
   const schema = yup.string()
     .url()
-    .required(i18next.t('errors.emptyUrl'))
+    .required()
     .test({
-      name: 'unique',
-      message: i18next.t('errors.existsUrl'),
+      name: 'uniqueUrl',
+      message: 'not unique url',
       test(value) {
         return !feeds.some((feed) => value.includes(feed.link));
       },

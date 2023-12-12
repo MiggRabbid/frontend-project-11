@@ -117,15 +117,11 @@ const renderPosts = (path, value, prevValue) => {
   });
 };
 
-const renderLink = (path, value) => {
+const renderLinkAndModal = (path, value) => {
   const link = document.querySelector(`a[data-id="${value.id}"]`);
 
   link.classList.remove('fw-bold');
   link.classList.add('fw-normal', 'link-secondary');
-};
-
-const renderModal = (path, value, prevValue) => {
-  renderLink(path, value, prevValue);
 
   const modal = document.querySelector('div[id="modal"]');
   const modalTitle = modal.querySelector('.modal-title');
@@ -137,15 +133,11 @@ const renderModal = (path, value, prevValue) => {
   read.href = value.link;
 };
 
-export default (renderType) => (path, value, previousValue) => {
-  const render = {
-    state: (currentPath, newValue) => renderState(currentPath, newValue),
-    feedback: (currentPath, newValue) => renderFeedback(currentPath, newValue),
-    feeds: (currentPath, newValue) => renderFeeds(currentPath, newValue),
-    posts: (currentPath, newValue, oldValue) => renderPosts(currentPath, newValue, oldValue),
-    link: (currentPath, newValue) => renderLink(currentPath, newValue),
-    modal: (currentPath, newValue, oldValue) => renderModal(currentPath, newValue, oldValue),
-  };
-
-  render[renderType](path, value, previousValue);
+export default (path, value, previousValue) => {
+  if (path === 'state') renderState(path, value);
+  if (path === 'currentUrl.feedback') renderFeedback(path, value);
+  if (path === 'currentUrl.error') renderFeedback(path, value);
+  if (path === 'data.feeds') renderFeeds(path, value);
+  if (path === 'data.posts') renderPosts(path, value, previousValue);
+  if (path.match(/^data\.posts\.\d+$/)) renderLinkAndModal(path, value);
 };

@@ -1,5 +1,6 @@
 import i18next from 'i18next';
 import resources from '../locales/index';
+import setYupLocale from '../locales/locale';
 import app from './app/app';
 
 export default () => {
@@ -10,11 +11,10 @@ export default () => {
       posts: [],
     },
     currentUrl: {
-      inputUrl: '',
+      url: '',
       error: null,
       feedback: null,
     },
-    modal: 'disable',
   };
 
   const defaultLanguage = 'ru';
@@ -25,6 +25,7 @@ export default () => {
     resources,
   })
     .then(() => {
+      setYupLocale(i18nextInstance);
       app(state, i18nextInstance);
     });
 };
