@@ -32,15 +32,19 @@ const renderFeedback = (rssForm, path, value) => {
   const oldFeedback = rssForm.parentElement.querySelector('.feedback');
 
   if (oldFeedback) oldFeedback.remove();
-
+  
+  newFeedback.classList.add('feedback', 'm-0', 'position-absolute', 'small');
+  let newTextContent;
+  
   if (path === 'currentUrl.feedback' && value !== null) {
-    newFeedback.classList.add('feedback', 'm-0', 'position-absolute', 'small', 'text-success');
-    newFeedback.textContent = value.at(-1).feedback;
+    newFeedback.classList.add('text-success');
+    newTextContent = value.at(-1).feedback;
   }
   if (path === 'currentUrl.error' && value !== null) {
-    newFeedback.classList.add('feedback', 'm-0', 'position-absolute', 'small', 'text-danger');
-    newFeedback.textContent = value.at(-1).error;
+    newFeedback.classList.add('text-danger');
+    newTextContent = value.at(-1).error;
   }
+  newFeedback.textContent = newTextContent
 
   rssForm.parentElement.append(newFeedback);
 };

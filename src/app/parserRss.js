@@ -17,11 +17,7 @@ export default (rss) => {
 
   const items = xml.querySelectorAll('item');
   const data = {
-    feeds: {
-      title: xml.querySelector('title').textContent,
-      description: xml.querySelector('description').textContent,
-      url: xml.querySelector('link').textContent,
-    },
+    feeds: extractDataFromItem(xml),
     items: Array.from(items).map((item) => extractDataFromItem(item)),
   };
 
