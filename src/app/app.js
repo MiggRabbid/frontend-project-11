@@ -1,7 +1,7 @@
 import onChange from 'on-change';
 import uniqueId from 'lodash/uniqueId';
 import urlValidator from './validator';
-import getRss from './getRss'
+import getRss from './getRss';
 import parsserRss from './parserRss';
 import updateRss from './updateRss';
 import render from './render';
@@ -32,15 +32,15 @@ export default (state, i18next) => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    
+
     const formData = new FormData(rssForm);
     const inputUrl = formData.get('url');
-    
+
     urlValidator(watchedState.data.feeds, inputUrl, i18next)
       .then(() => {
-        watchedState.state = 'processing'
+        watchedState.state = 'processing';
         const { waitingTiming } = state.timings;
-        
+
         return getRss(inputUrl, waitingTiming);
       })
       .then((rss) => {
@@ -95,6 +95,6 @@ export default (state, i18next) => {
   rssForm.addEventListener('submit', handleSubmit);
   container.addEventListener('click', handleLinksAndModal);
 
-  const { refreshTiming } = state.timings
+  const { refreshTiming } = state.timings;
   updateRss(watchedState, refreshTiming);
 };
