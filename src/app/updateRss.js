@@ -1,6 +1,6 @@
 import uniqueId from 'lodash/uniqueId';
 import getRss from './getRss';
-import parsserRss from './parserRss';
+import parserRss from './parserRss';
 
 const updateRss = (watchedState, refreshTiming) => {
   const { feeds, posts } = watchedState.data;
@@ -9,7 +9,7 @@ const updateRss = (watchedState, refreshTiming) => {
     const feedPosts = posts.filter((post) => post.feedId === feed.id);
 
     getRss(feed.link)
-      .then((rss) => parsserRss(rss))
+      .then((rss) => parserRss(rss))
       .then((data) => {
         const newPosts = [];
         data.items.forEach((item) => {
