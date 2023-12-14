@@ -1,6 +1,5 @@
 const renderState = (input, path, value) => {
   const button = document.querySelector('button[aria-label="add"]');
-  console.log(input.value);
 
   if (value === 'filling') {
     button.disabled = false;
