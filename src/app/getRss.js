@@ -7,7 +7,7 @@ const addProxy = (url) => {
   return proxyUrl.toString();
 };
 
-const getData = (url) => axios.get(addProxy(url), { timeout: 5000 })
+const getData = (url, waitingTiming) => axios.get(addProxy(url), { timeout: waitingTiming })
   .catch((error) => { throw error; });
 
 export default getData;

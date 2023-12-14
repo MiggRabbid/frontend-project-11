@@ -6,7 +6,6 @@ const renderState = (input, path, value) => {
     button.disabled = false;
     input.disabled = false;
   }
-
   if (value === 'processing') {
     const oldFeedback = document.querySelector('.feedback');
     if (oldFeedback) oldFeedback.remove();
@@ -15,14 +14,12 @@ const renderState = (input, path, value) => {
     input.classList.remove('is-invalid');
     input.classList.remove('is-valid');
   }
-
   if (value === 'processed') {
     button.disabled = false;
     input.disabled = false;
     input.classList.add('is-valid');
     input.value = '';
   }
-
   if (value === 'failed') {
     button.disabled = false;
     input.disabled = false;
@@ -41,7 +38,6 @@ const renderFeedback = (rssForm, path, value) => {
     newFeedback.classList.add('feedback', 'm-0', 'position-absolute', 'small', 'text-success');
     newFeedback.textContent = value.at(-1).feedback;
   }
-
   if (path === 'currentUrl.error' && value !== null) {
     newFeedback.classList.add('feedback', 'm-0', 'position-absolute', 'small', 'text-danger');
     newFeedback.textContent = value.at(-1).error;
@@ -115,15 +111,13 @@ const renderPosts = (path, value, prevValue) => {
 
 const renderLinkAndModal = (path, value) => {
   const link = document.querySelector(`a[data-id="${value.id}"]`);
-
-  link.classList.remove('fw-bold');
-  link.classList.add('fw-normal', 'link-secondary');
-
   const modal = document.querySelector('div[id="modal"]');
   const modalTitle = modal.querySelector('.modal-title');
   const modalBody = modal.querySelector('.modal-body');
   const read = modal.querySelector('.modal-footer').querySelector('a');
 
+  link.classList.remove('fw-bold');
+  link.classList.add('fw-normal', 'link-secondary');
   modalTitle.textContent = value.title;
   modalBody.textContent = value.description;
   read.href = value.link;

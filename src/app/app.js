@@ -1,7 +1,7 @@
 import onChange from 'on-change';
 import uniqueId from 'lodash/uniqueId';
 import urlValidator from './validator';
-import getRss from './getRss';
+import getRss from './getRss'
 import parsserRss from './parserRss';
 import updateRss from './updateRss';
 import render from './render';
@@ -32,13 +32,17 @@ export default (state, i18next) => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-
+    
     const formData = new FormData(rssForm);
     const inputUrl = formData.get('url');
-
+    
     urlValidator(watchedState.data.feeds, inputUrl, i18next)
-      .then(() => { watchedState.state = 'processing'; })
-      .then(() => getRss(inputUrl))
+      .then(() => {
+        watchedState.state = 'processing'
+        const { waitingTiming } = state.timings;
+        
+        return getRss(inputUrl, waitingTiming);
+      })
       .then((rss) => {
         const data = parsserRss(rss);
         processRssData(watchedState, data, inputUrl);
@@ -81,11 +85,8 @@ export default (state, i18next) => {
   const handleLinksAndModal = (event) => {
     const currentId = event.target.dataset.id;
     const indexToUpdate = watchedState.data.posts.findIndex((post) => post.id === currentId);
-
     if (indexToUpdate !== -1) {
-      const updatedPost = {
-        ...watchedState.data.posts[indexToUpdate],
-      };
+      const updatedPost = { ...watchedState.data.posts[indexToUpdate] };
       watchedState.data.viewedPostsIds.push(updatedPost.id);
       watchedState.data.posts[indexToUpdate] = updatedPost;
     }
@@ -93,5 +94,7 @@ export default (state, i18next) => {
 
   rssForm.addEventListener('submit', handleSubmit);
   container.addEventListener('click', handleLinksAndModal);
-  updateRss(watchedState);
+
+  const { refreshTiming } = state.timings
+  updateRss(watchedState, refreshTiming);
 };

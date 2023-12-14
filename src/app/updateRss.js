@@ -2,7 +2,7 @@ import uniqueId from 'lodash/uniqueId';
 import getRss from './getRss';
 import parsserRss from './parserRss';
 
-const updateRss = (watchedState) => {
+const updateRss = (watchedState, refreshTiming) => {
   const { feeds, posts } = watchedState.data;
 
   feeds.forEach((feed) => {
@@ -29,7 +29,7 @@ const updateRss = (watchedState) => {
       });
   });
 
-  setTimeout(() => updateRss(watchedState), 5000);
+  setTimeout(() => updateRss(watchedState, refreshTiming), refreshTiming);
 };
 
 export default updateRss;

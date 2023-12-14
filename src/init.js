@@ -16,6 +16,10 @@ export default () => {
       error: [],
       feedback: [],
     },
+    timings: {
+      refreshTiming: 5000,
+      waitingTiming: 5000,
+    }
   };
 
   const defaultLanguage = 'ru';
