@@ -6,10 +6,16 @@ const extractDataFromItem = (item) => ({
 
 export default (rss) => {
   const parser = new DOMParser();
-
   const xml = parser.parseFromString(rss.data.contents, 'application/xml');
-  const items = xml.querySelectorAll('item');
 
+  const parseError = xml.querySelector('parsererror');
+  if (parseError) {
+    const error = new Error('XML parsing error');
+    error.name = 'ParsingError';
+    throw error;
+  }
+
+  const items = xml.querySelectorAll('item');
   const data = {
     feeds: {
       title: xml.querySelector('title').textContent,
@@ -18,5 +24,6 @@ export default (rss) => {
     },
     items: Array.from(items).map((item) => extractDataFromItem(item)),
   };
+
   return data;
 };

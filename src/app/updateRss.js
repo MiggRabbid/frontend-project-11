@@ -2,8 +2,8 @@ import uniqueId from 'lodash/uniqueId';
 import getRss from './getRss';
 import parsserRss from './parserRss';
 
-const updateRss = (state, watchedState, handleLinksAndViewModal) => {
-  const { feeds, posts } = state.data;
+const updateRss = (watchedState) => {
+  const { feeds, posts } = watchedState.data;
 
   feeds.forEach((feed) => {
     const feedPosts = posts.filter((post) => post.feedId === feed.id);
@@ -17,7 +17,6 @@ const updateRss = (state, watchedState, handleLinksAndViewModal) => {
             id: uniqueId(),
             feedId: feed.id,
             ...item,
-            linkStatus: 'new',
           });
         });
 
@@ -25,11 +24,12 @@ const updateRss = (state, watchedState, handleLinksAndViewModal) => {
         const resultPost = newPosts.filter((newPost) => isNewPost(newPost, feedPosts));
         watchedState.data.posts.unshift(...resultPost);
       })
-      .catch((error) => { throw error; })
-      .finally(() => handleLinksAndViewModal(state, watchedState));
+      .catch((error) => {
+        console.error(error);
+      });
   });
 
-  setTimeout(() => updateRss(state, watchedState, handleLinksAndViewModal), 5000);
+  setTimeout(() => updateRss(watchedState), 5000);
 };
 
 export default updateRss;

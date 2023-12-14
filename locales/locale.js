@@ -1,13 +1,13 @@
 import * as yup from 'yup';
 
-const setYupLocale = (i18next) => {
+const setYupLocale = () => {
   yup.setLocale({
     mixed: {
-      required: i18next.t('errors.emptyUrl'),
+      required: 'errors.emptyUrl',
+      notOneOf: 'errors.existsUrl',
     },
     string: {
-      url: i18next.t('errors.incorrectUrl'),
-      test: i18next.t('errors.existsUrl'),
+      url: 'errors.incorrectUrl',
     },
   });
 };

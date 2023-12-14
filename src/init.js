@@ -9,11 +9,12 @@ export default () => {
     data: {
       feeds: [],
       posts: [],
+      viewedPostsIds: [],
     },
     currentUrl: {
       url: '',
-      error: null,
-      feedback: null,
+      error: [],
+      feedback: [],
     },
   };
 
