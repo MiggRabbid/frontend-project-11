@@ -4,6 +4,7 @@ const renderState = (input, path, value) => {
   if (value === 'filling') {
     button.disabled = false;
     input.disabled = false;
+    input.value = '';
   }
   if (value === 'processing') {
     const oldFeedback = document.querySelector('.feedback');
@@ -14,28 +15,21 @@ const renderState = (input, path, value) => {
     input.classList.remove('is-valid');
   }
   if (value === 'processed') {
-    button.disabled = false;
-    input.disabled = false;
     input.classList.add('is-valid');
-    input.value = '';
   }
   if (value === 'failed') {
-    button.disabled = false;
-    input.disabled = false;
     input.classList.add('is-invalid');
-    input.value = '';
   }
 };
 
 const renderFeedback = (rssForm, path, value) => {
   const newFeedback = document.createElement('p');
-  const oldFeedback = rssForm.parentElement.querySelector('.feedback');
-
-  if (oldFeedback) oldFeedback.remove();
-  
   newFeedback.classList.add('feedback', 'm-0', 'position-absolute', 'small');
   let newTextContent;
-  
+
+  const oldFeedback = rssForm.parentElement.querySelector('.feedback');
+  if (oldFeedback) oldFeedback.remove();
+
   if (path === 'currentUrl.feedback' && value !== null) {
     newFeedback.classList.add('text-success');
     newTextContent = value.at(-1).feedback;
@@ -44,8 +38,8 @@ const renderFeedback = (rssForm, path, value) => {
     newFeedback.classList.add('text-danger');
     newTextContent = value.at(-1).error;
   }
-  newFeedback.textContent = newTextContent
 
+  newFeedback.textContent = newTextContent;
   rssForm.parentElement.append(newFeedback);
 };
 
