@@ -66,7 +66,7 @@ const errorMessage = (error, i18next) => {
     default:
       return i18next.t(error.message);
   }
-}
+};
 
 export default (state, i18next) => {
   const rssForm = document.querySelector('.rss-form');
