@@ -57,6 +57,17 @@ const processRssData = (watchedState, data, inputUrl) => {
   watchedState.data.posts = [...currentPosts, ...watchedState.data.posts];
 };
 
+const errorMessage = (error, i18next) => {
+  switch (error.name) {
+    case 'ParsingError':
+      return i18next.t('errors.incorrectRss');
+    case 'AxiosError':
+      return i18next.t('errors.networkError');
+    default:
+      return i18next.t(error.message);
+  }
+}
+
 export default (state, i18next) => {
   const rssForm = document.querySelector('.rss-form');
   const input = rssForm.querySelector('input[id="url-input"]');
@@ -81,18 +92,7 @@ export default (state, i18next) => {
       })
       .catch((error) => {
         console.error(error);
-        let message;
-        switch (error.name) {
-          case 'ParsingError':
-            message = i18next.t('errors.incorrectRss');
-            break;
-          case 'AxiosError':
-            message = i18next.t('errors.networkError');
-            break;
-          default:
-            message = i18next.t(error.message);
-            break;
-        }
+        const message = errorMessage(error, i18next);
         watchedState.currentUrl.error.push({ inputUrl, message });
         watchedState.state = 'failed';
       })
