@@ -1,10 +1,43 @@
 import onChange from 'on-change';
 import uniqueId from 'lodash/uniqueId';
+import axios from 'axios';
 import urlValidator from './validator';
-import getRss from './getRss';
-import parsserRss from './parserRss';
-import updateRss from './updateRss';
+import parserRss from './parserRss';
 import render from './render';
+
+const refreshTiming = 5000;
+
+const addProxy = (url) => {
+  const proxyUrl = new URL('/get', 'https://allorigins.hexlet.app');
+  proxyUrl.searchParams.append('disableCache', 'true');
+  proxyUrl.searchParams.append('url', url);
+  return proxyUrl.toString();
+};
+
+const getData = (url) => axios.get(addProxy(url), { timeout: 5000 })
+  .catch((error) => { throw error; });
+
+const updateRss = (watchedState) => {
+  const { feeds, posts } = watchedState.data;
+  feeds.forEach((feed) => {
+    const feedPosts = posts.filter((post) => post.feedId === feed.id);
+    getData(feed.link)
+      .then((rss) => parserRss(rss))
+      .then((data) => {
+        const newPosts = [];
+        data.items.forEach((item) => {
+          newPosts.unshift({ id: uniqueId(), feedId: feed.id, ...item });
+        });
+        const isNewPost = (newPost, OldPosts) => !OldPosts.some((old) => old.link === newPost.link);
+        const resultPost = newPosts.filter((newPost) => isNewPost(newPost, feedPosts));
+        watchedState.data.posts.unshift(...resultPost);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  });
+  setTimeout(() => updateRss(watchedState, refreshTiming), refreshTiming);
+};
 
 const processRssData = (watchedState, data, inputUrl) => {
   const feedId = uniqueId();
@@ -32,48 +65,35 @@ export default (state, i18next) => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-
     const formData = new FormData(rssForm);
     const inputUrl = formData.get('url');
-
     urlValidator(watchedState.data.feeds, inputUrl, i18next)
       .then(() => {
         watchedState.state = 'processing';
-        const { waitingTiming } = state.timings;
-
-        return getRss(inputUrl, waitingTiming);
+        return getData(inputUrl);
       })
       .then((rss) => {
-        const data = parsserRss(rss);
+        const data = parserRss(rss);
         processRssData(watchedState, data, inputUrl);
-        watchedState.currentUrl.feedback.push({
-          inputUrl,
-          feedback: i18next.t('feedback.uploadedRss'),
-        });
+        const message = i18next.t('feedback.uploadedRss');
+        watchedState.currentUrl.feedback.push({ inputUrl, message });
         watchedState.state = 'processed';
       })
       .catch((error) => {
         console.error(error);
+        let message;
         switch (error.name) {
           case 'ParsingError':
-            watchedState.currentUrl.error.push({
-              inputUrl,
-              error: i18next.t('errors.incorrectRss'),
-            });
+            message = i18next.t('errors.incorrectRss');
             break;
           case 'AxiosError':
-            watchedState.currentUrl.error.push({
-              inputUrl,
-              error: i18next.t('errors.networkError'),
-            });
+            message = i18next.t('errors.networkError');
             break;
           default:
-            watchedState.currentUrl.error.push({
-              inputUrl,
-              error: i18next.t(error.message),
-            });
+            message = i18next.t(error.message);
             break;
         }
+        watchedState.currentUrl.error.push({ inputUrl, message });
         watchedState.state = 'failed';
       })
       .finally(() => {
@@ -83,18 +103,17 @@ export default (state, i18next) => {
   };
 
   const handleLinksAndModal = (event) => {
-    const currentId = event.target.dataset.id;
-    const indexToUpdate = watchedState.data.posts.findIndex((post) => post.id === currentId);
-    if (indexToUpdate !== -1) {
-      const updatedPost = { ...watchedState.data.posts[indexToUpdate] };
-      watchedState.data.viewedPostsIds.push(updatedPost.id);
-      watchedState.data.posts[indexToUpdate] = updatedPost;
+    const element = event.target;
+    const curId = event.target.dataset.id;
+    if (element.type === 'button') {
+      const newViewedPost = state.data.posts.find((obj) => obj.id === curId);
+      watchedState.uiState.vievedPost = newViewedPost;
     }
+    watchedState.uiState.viewedPostsId.add(curId);
   };
 
   rssForm.addEventListener('submit', handleSubmit);
   container.addEventListener('click', handleLinksAndModal);
 
-  const { refreshTiming } = state.timings;
   updateRss(watchedState, refreshTiming);
 };

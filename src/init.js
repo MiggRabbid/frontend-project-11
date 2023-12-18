@@ -9,16 +9,15 @@ export default () => {
     data: {
       feeds: [],
       posts: [],
-      viewedPostsIds: [],
+    },
+    uiState: {
+      vievedPost: null,
+      viewedPostsId: new Set(),
     },
     currentUrl: {
       url: '',
       error: [],
       feedback: [],
-    },
-    timings: {
-      refreshTiming: 5000,
-      waitingTiming: 5000,
     },
   };
 

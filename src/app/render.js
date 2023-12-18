@@ -23,22 +23,20 @@ const renderState = (input, path, value) => {
 };
 
 const renderFeedback = (rssForm, path, value) => {
-  const newFeedback = document.createElement('p');
-  newFeedback.classList.add('feedback', 'm-0', 'position-absolute', 'small');
-  let newTextContent;
-
   const oldFeedback = rssForm.parentElement.querySelector('.feedback');
   if (oldFeedback) oldFeedback.remove();
 
+  const newFeedback = document.createElement('p');
+  newFeedback.classList.add('feedback', 'm-0', 'position-absolute', 'small');
+
   if (path === 'currentUrl.feedback' && value !== null) {
     newFeedback.classList.add('text-success');
-    newTextContent = value.at(-1).feedback;
   }
   if (path === 'currentUrl.error' && value !== null) {
     newFeedback.classList.add('text-danger');
-    newTextContent = value.at(-1).error;
   }
 
+  const newTextContent = value.at(-1).message;
   newFeedback.textContent = newTextContent;
   rssForm.parentElement.append(newFeedback);
 };
@@ -106,25 +104,49 @@ const renderPosts = (path, value, prevValue) => {
   });
 };
 
-const renderLinkAndModal = (path, value) => {
-  const link = document.querySelector(`a[data-id="${value.id}"]`);
+const renderViewedLink = (path, value, prevValue) => {
+  const findNewId = () => Array.from(new Set([...value].filter((item) => !prevValue.has(item))))[0];
+
+  const newId = findNewId();
+  const link = document.querySelector(`a[data-id="${newId}"]`);
+
+  link.classList.remove('fw-bold');
+  link.classList.add('fw-normal', 'link-secondary');
+};
+
+const renderModal = (path, value) => {
   const modal = document.querySelector('div[id="modal"]');
   const modalTitle = modal.querySelector('.modal-title');
   const modalBody = modal.querySelector('.modal-body');
   const read = modal.querySelector('.modal-footer').querySelector('a');
 
-  link.classList.remove('fw-bold');
-  link.classList.add('fw-normal', 'link-secondary');
   modalTitle.textContent = value.title;
   modalBody.textContent = value.description;
   read.href = value.link;
 };
 
-export default (rssForm, input) => (path, value, previousValue) => {
-  if (path === 'state') renderState(input, path, value);
-  if (path === 'currentUrl.feedback') renderFeedback(rssForm, path, value);
-  if (path === 'currentUrl.error') renderFeedback(rssForm, path, value);
-  if (path === 'data.feeds') renderFeeds(path, value);
-  if (path === 'data.posts') renderPosts(path, value, previousValue);
-  if (path.match(/^data\.posts\.\d+$/)) renderLinkAndModal(path, value);
+export default (rssForm, input) => (path, value, prevValue) => {
+  switch (path) {
+    case 'state':
+      renderState(input, path, value);
+      break;
+    case 'currentUrl.feedback':
+    case 'currentUrl.error':
+      renderFeedback(rssForm, path, value);
+      break;
+    case 'data.feeds':
+      renderFeeds(path, value);
+      break;
+    case 'data.posts':
+      renderPosts(path, value, prevValue);
+      break;
+    case 'uiState.viewedPostsId':
+      renderViewedLink(path, value, prevValue);
+      break;
+    case 'uiState.vievedPost':
+      renderModal(path, value);
+      break;
+    default:
+      console.error('Incorrect data for rendering');
+  }
 };
