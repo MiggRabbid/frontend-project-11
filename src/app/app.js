@@ -32,9 +32,7 @@ const updateRss = (watchedState) => {
         const resultPost = newPosts.filter((newPost) => isNewPost(newPost, feedPosts));
         watchedState.data.posts.unshift(...resultPost);
       })
-      .catch((error) => {
-        console.error(error);
-      });
+      .catch((error) => { console.error(error); });
   });
   setTimeout(() => updateRss(watchedState, refreshTiming), refreshTiming);
 };
@@ -57,14 +55,14 @@ const processRssData = (watchedState, data, inputUrl) => {
   watchedState.data.posts = [...currentPosts, ...watchedState.data.posts];
 };
 
-const errorMessage = (error, i18next) => {
+const errorMessage = (error) => {
   switch (error.name) {
     case 'ParsingError':
-      return i18next.t('errors.incorrectRss');
+      return 'errors.incorrectRss';
     case 'AxiosError':
-      return i18next.t('errors.networkError');
+      return 'errors.networkError';
     default:
-      return i18next.t(error.message);
+      return error.message;
   }
 };
 
@@ -92,7 +90,7 @@ export default (state, i18next) => {
       })
       .catch((error) => {
         console.error(error);
-        const message = errorMessage(error, i18next);
+        const message = i18next.t(errorMessage(error));
         watchedState.currentUrl.error.push({ inputUrl, message });
         watchedState.state = 'failed';
       })
