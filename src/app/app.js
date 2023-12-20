@@ -84,7 +84,7 @@ export default (state, i18next) => {
     const inputUrl = formData.get('url');
     urlValidator(watchedState.data.feeds, inputUrl)
       .then(() => {
-        state.currentUrl = inputUrl
+        state.currentUrl = inputUrl;
         watchedState.state = 'processing';
         return getData(inputUrl);
       })
