@@ -75,6 +75,7 @@ export default (state, i18next) => {
   const elements = {
     rssForm, button, input, feeds, posts,
   };
+
   const watchedState = onChange(state, render(elements));
 
   const handleSubmit = (event) => {
@@ -83,6 +84,7 @@ export default (state, i18next) => {
     const inputUrl = formData.get('url');
     urlValidator(watchedState.data.feeds, inputUrl)
       .then(() => {
+        state.currentUrl = inputUrl
         watchedState.state = 'processing';
         return getData(inputUrl);
       })
