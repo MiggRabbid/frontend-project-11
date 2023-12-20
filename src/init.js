@@ -14,6 +14,7 @@ export default () => {
       vievedPost: null,
       viewedPostsId: new Set(),
     },
+    currentUrl: null,
     feedbacks: [],
   };
 

@@ -66,7 +66,7 @@ const renderFeeds = (feeds, value) => {
 
     const p = document.createElement('p');
     p.classList.add('m-0', 'small', 'text-black-50');
-    p.textContent = feed.descriptio;
+    p.textContent = feed.description;
 
     li.append(h3);
     li.append(p);
@@ -145,8 +145,10 @@ const renderModal = (value) => {
   read.href = value.link;
 };
 
-export default (renderParam) => (path, value, prevValue) => {
-  const [rssForm, button, input, feeds, posts] = renderParam;
+export default (elements) => (path, value, prevValue) => {
+  const {
+    rssForm, button, input, feeds, posts,
+  } = elements;
   switch (path) {
     case 'state':
       renderState(input, button, value);

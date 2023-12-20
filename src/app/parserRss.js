@@ -1,3 +1,5 @@
+const parser = new DOMParser();
+
 const extractDataFromItem = (item) => ({
   title: item.querySelector('title').textContent,
   description: item.querySelector('description').textContent,
@@ -5,7 +7,6 @@ const extractDataFromItem = (item) => ({
 });
 
 export default (rss) => {
-  const parser = new DOMParser();
   const xml = parser.parseFromString(rss.data.contents, 'application/xml');
 
   const parseError = xml.querySelector('parsererror');

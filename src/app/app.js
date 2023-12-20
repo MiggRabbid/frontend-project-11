@@ -72,8 +72,10 @@ export default (state, i18next) => {
   const feeds = document.querySelector('.feeds');
   const posts = document.querySelector('.posts');
 
-  const renderParam = [rssForm, button, input, feeds, posts];
-  const watchedState = onChange(state, render(renderParam));
+  const elements = {
+    rssForm, button, input, feeds, posts,
+  };
+  const watchedState = onChange(state, render(elements));
 
   const handleSubmit = (event) => {
     event.preventDefault();
