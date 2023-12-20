@@ -10,7 +10,7 @@ export default (rss) => {
 
   const parseError = xml.querySelector('parsererror');
   if (parseError) {
-    const error = new Error('XML parsing error');
+    const error = new Error(parseError.textContent);
     error.name = 'ParsingError';
     throw error;
   }

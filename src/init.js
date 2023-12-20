@@ -14,11 +14,7 @@ export default () => {
       vievedPost: null,
       viewedPostsId: new Set(),
     },
-    currentUrl: {
-      url: '',
-      error: [],
-      feedback: [],
-    },
+    feedbacks: [],
   };
 
   const defaultLanguage = 'ru';

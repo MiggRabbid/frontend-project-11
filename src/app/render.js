@@ -1,6 +1,4 @@
-const renderState = (input, path, value) => {
-  const button = document.querySelector('button[aria-label="add"]');
-
+const renderState = (input, button, value) => {
   if (value === 'filling') {
     button.disabled = false;
     input.disabled = false;
@@ -16,23 +14,24 @@ const renderState = (input, path, value) => {
   }
   if (value === 'processed') {
     input.classList.add('is-valid');
+    input.focus();
   }
   if (value === 'failed') {
     input.classList.add('is-invalid');
   }
 };
 
-const renderFeedback = (rssForm, path, value) => {
+const renderFeedback = (rssForm, value) => {
   const oldFeedback = rssForm.parentElement.querySelector('.feedback');
   if (oldFeedback) oldFeedback.remove();
 
   const newFeedback = document.createElement('p');
   newFeedback.classList.add('feedback', 'm-0', 'position-absolute', 'small');
 
-  if (path === 'currentUrl.feedback' && value !== null) {
+  if (value.at(-1).type === 'uploaded') {
     newFeedback.classList.add('text-success');
   }
-  if (path === 'currentUrl.error' && value !== null) {
+  if (value.at(-1).type === 'error') {
     newFeedback.classList.add('text-danger');
   }
 
@@ -41,8 +40,7 @@ const renderFeedback = (rssForm, path, value) => {
   rssForm.parentElement.append(newFeedback);
 };
 
-const renderFeeds = (path, value) => {
-  const feeds = document.querySelector('.feeds');
+const renderFeeds = (feeds, value) => {
   let card;
 
   if (feeds.querySelector('.card')) {
@@ -61,12 +59,22 @@ const renderFeeds = (path, value) => {
   value.forEach((feed) => {
     const li = document.createElement('li');
     li.classList.add('list-group-item', 'border-0', 'border-end-0');
-    li.innerHTML = `<h3 class="h6 m-0">${feed.title}</h3><p class="m-0 small text-black-50">${feed.description}</p>`;
+
+    const h3 = document.createElement('h3');
+    h3.classList.add('h6', 'm-0');
+    h3.textContent = feed.title;
+
+    const p = document.createElement('p');
+    p.classList.add('m-0', 'small', 'text-black-50');
+    p.textContent = feed.descriptio;
+
+    li.append(h3);
+    li.append(p);
     listGroup.prepend(li);
   });
 };
 
-const renderPosts = (path, value, prevValue) => {
+const renderPosts = (posts, value, prevValue) => {
   let newPosts;
 
   if (prevValue === undefined) {
@@ -76,7 +84,6 @@ const renderPosts = (path, value, prevValue) => {
     newPosts = value.filter((newPost) => !isObjInPrevValue(newPost));
   }
 
-  const posts = document.querySelector('.posts');
   let card;
 
   if (posts.querySelector('.card')) {
@@ -95,16 +102,29 @@ const renderPosts = (path, value, prevValue) => {
     const li = document.createElement('li');
     li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
 
-    const link = `<a href="${post.link}" class="fw-bold" data-id="${post.id}" target="_blank" rel="noopener noreferrer">${post.title}</a>`;
+    const link = document.createElement('a');
+    link.href = post.link;
+    link.classList.add('fw-bold');
+    link.setAttribute('data-id', post.id);
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.textContent = post.title;
 
-    li.innerHTML = ` ${link}
-<button type="button" class="btn btn-outline-primary btn-sm" data-id="${post.id}" data-bs-toggle="modal" data-bs-target="#modal">Просмотр</button>`;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+    button.setAttribute('data-id', post.id);
+    button.setAttribute('data-bs-toggle', 'modal');
+    button.setAttribute('data-bs-target', '#modal');
+    button.textContent = 'Просмотр';
 
+    li.append(link);
+    li.append(button);
     listGroup.prepend(li);
   });
 };
 
-const renderViewedLink = (path, value, prevValue) => {
+const renderViewedLink = (value, prevValue) => {
   const findNewId = () => Array.from(new Set([...value].filter((item) => !prevValue.has(item))))[0];
 
   const newId = findNewId();
@@ -114,7 +134,7 @@ const renderViewedLink = (path, value, prevValue) => {
   link.classList.add('fw-normal', 'link-secondary');
 };
 
-const renderModal = (path, value) => {
+const renderModal = (value) => {
   const modal = document.querySelector('div[id="modal"]');
   const modalTitle = modal.querySelector('.modal-title');
   const modalBody = modal.querySelector('.modal-body');
@@ -125,28 +145,28 @@ const renderModal = (path, value) => {
   read.href = value.link;
 };
 
-export default (rssForm, input) => (path, value, prevValue) => {
+export default (renderParam) => (path, value, prevValue) => {
+  const [rssForm, button, input, feeds, posts] = renderParam;
   switch (path) {
     case 'state':
-      renderState(input, path, value);
+      renderState(input, button, value);
       break;
-    case 'currentUrl.feedback':
-    case 'currentUrl.error':
-      renderFeedback(rssForm, path, value);
+    case 'feedbacks':
+      renderFeedback(rssForm, value);
       break;
     case 'data.feeds':
-      renderFeeds(path, value);
+      renderFeeds(feeds, value);
       break;
     case 'data.posts':
-      renderPosts(path, value, prevValue);
+      renderPosts(posts, value, prevValue);
       break;
     case 'uiState.viewedPostsId':
-      renderViewedLink(path, value, prevValue);
+      renderViewedLink(value, prevValue);
       break;
     case 'uiState.vievedPost':
-      renderModal(path, value);
+      renderModal(value);
       break;
     default:
-      console.error('Incorrect data for rendering');
+      throw new Error(`Unhandled path: ${path}`);
   }
 };
