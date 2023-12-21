@@ -17,7 +17,6 @@ export default () => {
     formState: {
       currentUrl: null,
       isValid: null,
-      feedbacks: null,
       errors: [],
     },
   };

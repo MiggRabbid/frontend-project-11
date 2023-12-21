@@ -37,10 +37,10 @@ const updateRss = (watchedState) => {
   const { feeds, posts } = watchedState.data;
   feeds.forEach((feed) => {
     const feedPosts = posts.filter((post) => post.feedId === feed.id);
+    const feedId = feed.id;
     getData(feed.link)
       .then((rss) => parserRss(rss))
       .then((data) => {
-        const feedId = feed.id;
         const newPosts = getPosts(feedId, data);
         const isNewPost = (newPost, oldPosts) => !oldPosts.some((old) => old.link === newPost.link);
         const resultPost = newPosts.filter((newPost) => isNewPost(newPost, feedPosts));
@@ -51,20 +51,17 @@ const updateRss = (watchedState) => {
   setTimeout(() => updateRss(watchedState), refreshTiming);
 };
 
-const processRssData = (watchedState, i18next) => {
+const processRssData = (watchedState) => {
   watchedState.state = 'processing';
-  const inputUrl = watchedState.currentUrl;
-  return getData(inputUrl)
+  watchedState.formState.isValid = 'waiting';
+  const url = watchedState.currentUrl;
+  return getData(url)
     .then((rss) => parserRss(rss))
     .then((data) => {
       const feedId = uniqueId();
-      watchedState.data.feeds.push({
-        id: feedId, ...data.feeds, link: inputUrl,
-      });
+      watchedState.data.feeds.push({ id: feedId, ...data.feeds, link: url });
       const currentPosts = getPosts(feedId, data);
       watchedState.data.posts = [...currentPosts, ...watchedState.data.posts];
-      const message = i18next.t('feedback.uploadedRss');
-      watchedState.formState.feedbacks = { inputUrl, message };
       watchedState.formState.isValid = true;
       watchedState.state = 'processed';
     });
@@ -80,35 +77,33 @@ export default (state, i18next) => {
   const elements = {
     rssForm, button, input, modal, feeds, posts,
   };
-  const watchedState = watcher(state, elements);
+  const watchedState = watcher(state, i18next, elements);
   const handleSubmit = (event) => {
     event.preventDefault();
     const formData = new FormData(rssForm);
     const inputUrl = formData.get('url');
     watchedState.currentUrl = inputUrl;
     urlValidator(watchedState.data.feeds, inputUrl)
-      .then(() => processRssData(watchedState, i18next))
+      .then(() => processRssData(watchedState))
       .catch((error) => {
-        const message = i18next.t(errorMessage(error));
-        watchedState.formState.errors.push({ inputUrl, message });
+        watchedState.formState.errors.push(errorMessage(error));
         watchedState.formState.isValid = false;
         watchedState.state = 'failed';
         console.error(error);
       })
       .finally(() => {
         state.formState.isValid = null;
-        state.formState.feedbacks = null;
         watchedState.state = 'filling';
       });
   };
   const handlePostClick = (event) => {
     const element = event.target;
-    const curId = event.target.dataset.id;
+    const postId = event.target.dataset.id;
     if (element.type === 'button') {
-      const newViewedPost = state.data.posts.find((obj) => obj.id === curId);
+      const newViewedPost = state.data.posts.find((obj) => obj.id === postId);
       watchedState.uiState.vievedPost = newViewedPost;
     }
-    watchedState.uiState.viewedPostsId.add(curId);
+    watchedState.uiState.viewedPostsId.add(postId);
   };
   rssForm.addEventListener('submit', handleSubmit);
   posts.addEventListener('click', handlePostClick);
