@@ -14,12 +14,14 @@ export default () => {
       vievedPost: null,
       viewedPostsId: new Set(),
     },
-    currentUrl: null,
-    feedbacks: [],
+    formState: {
+      currentUrl: null,
+      isValid: null,
+      feedbacks: null,
+      errors: [],
+    },
   };
-
   const defaultLanguage = 'ru';
-
   const i18nextInstance = i18next.createInstance();
   i18nextInstance.init({
     lng: defaultLanguage,

@@ -5,7 +5,6 @@ const urlValidator = (feeds, url) => {
     .url()
     .required()
     .notOneOf(feeds.map((feed) => feed.link));
-
   return schema.validate(url)
     .then(() => true)
     .catch((error) => { throw error; });
