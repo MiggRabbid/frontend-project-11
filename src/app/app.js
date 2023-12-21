@@ -1,58 +1,10 @@
-import onChange from 'on-change';
 import uniqueId from 'lodash/uniqueId';
 import axios from 'axios';
 import urlValidator from './validator';
 import parserRss from './parserRss';
-import render from './render';
+import watcher from './render';
 
 const refreshTiming = 5000;
-
-const addProxy = (url) => {
-  const proxyUrl = new URL('/get', 'https://allorigins.hexlet.app');
-  proxyUrl.searchParams.append('disableCache', 'true');
-  proxyUrl.searchParams.append('url', url);
-  return proxyUrl.toString();
-};
-
-const getData = (url) => axios.get(addProxy(url), { timeout: 5000 })
-  .catch((error) => { throw error; });
-
-const updateRss = (watchedState) => {
-  const { feeds, posts } = watchedState.data;
-  feeds.forEach((feed) => {
-    const feedPosts = posts.filter((post) => post.feedId === feed.id);
-    getData(feed.link)
-      .then((rss) => parserRss(rss))
-      .then((data) => {
-        const newPosts = [];
-        data.items.forEach((item) => {
-          newPosts.unshift({ id: uniqueId(), feedId: feed.id, ...item });
-        });
-        const isNewPost = (newPost, oldPosts) => !oldPosts.some((old) => old.link === newPost.link);
-        const resultPost = newPosts.filter((newPost) => isNewPost(newPost, feedPosts));
-        watchedState.data.posts.unshift(...resultPost);
-      });
-  });
-  setTimeout(() => updateRss(watchedState), refreshTiming);
-};
-
-const processRssData = (watchedState, data, inputUrl) => {
-  const feedId = uniqueId();
-  watchedState.data.feeds.push({
-    id: feedId,
-    ...data.feeds,
-    link: inputUrl,
-  });
-  const currentPosts = [];
-  data.items.forEach((item) => {
-    currentPosts.unshift({
-      id: uniqueId(),
-      feedId,
-      ...item,
-    });
-  });
-  watchedState.data.posts = [...currentPosts, ...watchedState.data.posts];
-};
 
 const errorMessage = (error) => {
   switch (error.name) {
@@ -65,47 +17,90 @@ const errorMessage = (error) => {
   }
 };
 
+const addProxy = (url) => {
+  const proxyUrl = new URL('/get', 'https://allorigins.hexlet.app');
+  proxyUrl.searchParams.append('disableCache', 'true');
+  proxyUrl.searchParams.append('url', url);
+  return proxyUrl.toString();
+};
+
+const getData = (url) => axios.get(addProxy(url), { timeout: 5000 })
+  .catch((error) => { throw error; });
+
+const getPosts = (feedId, data) => {
+  const posts = [];
+  data.items.forEach((item) => posts.unshift({ id: uniqueId(), feedId, ...item }));
+  return posts;
+};
+
+const updateRss = (watchedState) => {
+  const { feeds, posts } = watchedState.data;
+  feeds.forEach((feed) => {
+    const feedPosts = posts.filter((post) => post.feedId === feed.id);
+    getData(feed.link)
+      .then((rss) => parserRss(rss))
+      .then((data) => {
+        const feedId = feed.id;
+        const newPosts = getPosts(feedId, data);
+        const isNewPost = (newPost, oldPosts) => !oldPosts.some((old) => old.link === newPost.link);
+        const resultPost = newPosts.filter((newPost) => isNewPost(newPost, feedPosts));
+        watchedState.data.posts.unshift(...resultPost);
+      })
+      .catch((error) => { console.error(error); });
+  });
+  setTimeout(() => updateRss(watchedState), refreshTiming);
+};
+
+const processRssData = (watchedState, i18next) => {
+  watchedState.state = 'processing';
+  const inputUrl = watchedState.currentUrl;
+  return getData(inputUrl)
+    .then((rss) => parserRss(rss))
+    .then((data) => {
+      const feedId = uniqueId();
+      watchedState.data.feeds.push({
+        id: feedId, ...data.feeds, link: inputUrl,
+      });
+      const currentPosts = getPosts(feedId, data);
+      watchedState.data.posts = [...currentPosts, ...watchedState.data.posts];
+      const message = i18next.t('feedback.uploadedRss');
+      watchedState.formState.feedbacks = { inputUrl, message };
+      watchedState.formState.isValid = true;
+      watchedState.state = 'processed';
+    });
+};
+
 export default (state, i18next) => {
   const rssForm = document.querySelector('.rss-form');
   const input = rssForm.querySelector('input[id="url-input"]');
   const button = document.querySelector('button[aria-label="add"]');
+  const modal = document.querySelector('div[id="modal"]');
   const feeds = document.querySelector('.feeds');
   const posts = document.querySelector('.posts');
-
   const elements = {
-    rssForm, button, input, feeds, posts,
+    rssForm, button, input, modal, feeds, posts,
   };
-
-  const watchedState = onChange(state, render(elements));
-
+  const watchedState = watcher(state, elements);
   const handleSubmit = (event) => {
     event.preventDefault();
     const formData = new FormData(rssForm);
     const inputUrl = formData.get('url');
+    watchedState.currentUrl = inputUrl;
     urlValidator(watchedState.data.feeds, inputUrl)
-      .then(() => {
-        state.currentUrl = inputUrl;
-        watchedState.state = 'processing';
-        return getData(inputUrl);
-      })
-      .then((rss) => {
-        const data = parserRss(rss);
-        processRssData(watchedState, data, inputUrl);
-        const message = i18next.t('feedback.uploadedRss');
-        watchedState.feedbacks.push({ type: 'uploaded', inputUrl, message });
-        watchedState.state = 'processed';
-      })
+      .then(() => processRssData(watchedState, i18next))
       .catch((error) => {
-        console.error(error);
         const message = i18next.t(errorMessage(error));
-        watchedState.feedbacks.push({ type: 'error', inputUrl, message });
+        watchedState.formState.errors.push({ inputUrl, message });
+        watchedState.formState.isValid = false;
         watchedState.state = 'failed';
+        console.error(error);
       })
       .finally(() => {
+        state.formState.isValid = null;
+        state.formState.feedbacks = null;
         watchedState.state = 'filling';
       });
   };
-
   const handlePostClick = (event) => {
     const element = event.target;
     const curId = event.target.dataset.id;
@@ -115,9 +110,7 @@ export default (state, i18next) => {
     }
     watchedState.uiState.viewedPostsId.add(curId);
   };
-
   rssForm.addEventListener('submit', handleSubmit);
   posts.addEventListener('click', handlePostClick);
-
   updateRss(watchedState);
 };
