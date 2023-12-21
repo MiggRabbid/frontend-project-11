@@ -4,6 +4,7 @@ export default {
       ru: 'Русский',
     },
     feedback: {
+      uploadingRss: 'Получение RSS',
       uploadedRss: 'RSS успешно загружен',
     },
     errors: {

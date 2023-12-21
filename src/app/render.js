@@ -23,18 +23,23 @@ const renderState = (input, button, value) => {
   }
 };
 
-const renderFeedback = (state, rssForm, value) => {
+const renderFeedback = (state, i18next, rssForm, value) => {
   const oldFeedback = rssForm.parentElement.querySelector('.feedback');
   if (oldFeedback) oldFeedback.remove();
   const newFeedback = document.createElement('p');
   newFeedback.classList.add('feedback', 'm-0', 'position-absolute', 'small');
   let newTextContent;
+  if (value === 'waiting') {
+    newTextContent = i18next.t('feedback.uploadingRss');
+    newFeedback.classList.add('text-white-50');
+  }
   if (value === true) {
-    newTextContent = state.formState.feedbacks.message;
+    newTextContent = i18next.t('feedback.uploadedRss');
     newFeedback.classList.add('text-success');
   }
   if (value === false) {
-    newTextContent = state.formState.errors.at(-1).message;
+    const errorMessage = state.formState.errors.at(-1);
+    newTextContent = i18next.t(errorMessage);
     newFeedback.classList.add('text-danger');
   }
   newFeedback.textContent = newTextContent;
@@ -128,7 +133,7 @@ const renderModal = (modal, value) => {
   read.href = value.link;
 };
 
-const render = (elements, state) => (path, value, prevValue) => {
+const render = (state, i18next, elements) => (path, value, prevValue) => {
   const {
     rssForm, button, input, modal, feeds, posts,
   } = elements;
@@ -137,7 +142,7 @@ const render = (elements, state) => (path, value, prevValue) => {
       renderState(input, button, value);
       break;
     case 'formState.isValid':
-      renderFeedback(state, rssForm, value);
+      renderFeedback(state, i18next, rssForm, value);
       break;
     case 'data.feeds':
       renderFeeds(feeds, value);
@@ -156,4 +161,4 @@ const render = (elements, state) => (path, value, prevValue) => {
   }
 };
 
-export default (state, elements) => onChange(state, render(elements, state));
+export default (state, i18next, elements) => onChange(state, render(state, i18next, elements));
