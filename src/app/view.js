@@ -33,11 +33,11 @@ const renderFeedback = (state, i18next, rssForm, value) => {
     newTextContent = i18next.t('feedback.uploadingRss');
     newFeedback.classList.add('text-white-50');
   }
-  if (value === true) {
+  if (value === 'valid') {
     newTextContent = i18next.t('feedback.uploadedRss');
     newFeedback.classList.add('text-success');
   }
-  if (value === false) {
+  if (value === 'invalid') {
     const errorMessage = state.formState.errors.at(-1);
     newTextContent = i18next.t(errorMessage);
     newFeedback.classList.add('text-danger');

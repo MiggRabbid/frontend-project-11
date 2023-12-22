@@ -1,8 +1,8 @@
 import uniqueId from 'lodash/uniqueId';
 import axios from 'axios';
 import urlValidator from './validator';
-import parserRss from './parserRss';
-import watcher from './render';
+import parserRss from './parser';
+import watcher from './view';
 
 const refreshTiming = 5000;
 
@@ -62,7 +62,7 @@ const processRssData = (watchedState) => {
       watchedState.data.feeds.push({ id: feedId, ...data.feeds, link: url });
       const currentPosts = getPosts(feedId, data);
       watchedState.data.posts = [...currentPosts, ...watchedState.data.posts];
-      watchedState.formState.isValid = true;
+      watchedState.formState.isValid = 'valid';
       watchedState.state = 'processed';
     });
 };
@@ -82,17 +82,17 @@ export default (state, i18next) => {
     event.preventDefault();
     const formData = new FormData(rssForm);
     const inputUrl = formData.get('url');
+    watchedState.formState.isValid = null;
     watchedState.currentUrl = inputUrl;
     urlValidator(watchedState.data.feeds, inputUrl)
       .then(() => processRssData(watchedState))
       .catch((error) => {
         watchedState.formState.errors.push(errorMessage(error));
-        watchedState.formState.isValid = false;
+        watchedState.formState.isValid = 'invalid';
         watchedState.state = 'failed';
         console.error(error);
       })
       .finally(() => {
-        state.formState.isValid = null;
         watchedState.state = 'filling';
       });
   };
