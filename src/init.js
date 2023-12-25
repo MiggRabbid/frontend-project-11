@@ -1,6 +1,7 @@
 import i18next from 'i18next';
-import resources from '../locales/index';
-import setYupLocale from '../locales/locale';
+import * as yup from 'yup';
+import resources from './locales/index';
+import locale from './locales/locale';
 import app from './app/app';
 
 export default () => {
@@ -19,6 +20,9 @@ export default () => {
       isValid: null,
       errors: [],
     },
+  };
+  const setYupLocale = () => {
+    yup.setLocale(locale);
   };
   const defaultLanguage = 'ru';
   const i18nextInstance = i18next.createInstance();

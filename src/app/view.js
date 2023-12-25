@@ -1,12 +1,13 @@
 import onChange from 'on-change';
 
+const initialInputState = (input, button) => {
+  button.disabled = false;
+  input.disabled = false;
+  input.value = '';
+  input.focus();
+};
+
 const renderState = (input, button, value) => {
-  if (value === 'filling') {
-    button.disabled = false;
-    input.disabled = false;
-    input.value = '';
-    input.focus();
-  }
   if (value === 'processing') {
     const oldFeedback = document.querySelector('.feedback');
     if (oldFeedback) oldFeedback.remove();
@@ -17,9 +18,11 @@ const renderState = (input, button, value) => {
   }
   if (value === 'processed') {
     input.classList.add('is-valid');
+    initialInputState(input, button);
   }
   if (value === 'failed') {
     input.classList.add('is-invalid');
+    initialInputState(input, button);
   }
 };
 

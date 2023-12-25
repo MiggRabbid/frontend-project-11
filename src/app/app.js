@@ -68,21 +68,19 @@ const processRssData = (watchedState) => {
 };
 
 export default (state, i18next) => {
-  const rssForm = document.querySelector('.rss-form');
-  const input = rssForm.querySelector('input[id="url-input"]');
-  const button = document.querySelector('button[aria-label="add"]');
-  const modal = document.querySelector('div[id="modal"]');
-  const feeds = document.querySelector('.feeds');
-  const posts = document.querySelector('.posts');
   const elements = {
-    rssForm, button, input, modal, feeds, posts,
+    rssForm: document.querySelector('.rss-form'),
+    input: document.querySelector('input[id="url-input"]'),
+    button: document.querySelector('button[aria-label="add"]'),
+    modal: document.querySelector('div[id="modal"]'),
+    feeds: document.querySelector('.feeds'),
+    posts: document.querySelector('.posts'),
   };
   const watchedState = watcher(state, i18next, elements);
   const handleSubmit = (event) => {
     event.preventDefault();
-    const formData = new FormData(rssForm);
+    const formData = new FormData(elements.rssForm);
     const inputUrl = formData.get('url');
-    watchedState.formState.isValid = null;
     watchedState.currentUrl = inputUrl;
     urlValidator(watchedState.data.feeds, inputUrl)
       .then(() => processRssData(watchedState))
@@ -91,9 +89,6 @@ export default (state, i18next) => {
         watchedState.formState.isValid = 'invalid';
         watchedState.state = 'failed';
         console.error(error);
-      })
-      .finally(() => {
-        watchedState.state = 'filling';
       });
   };
   const handlePostClick = (event) => {
@@ -105,7 +100,7 @@ export default (state, i18next) => {
     }
     watchedState.uiState.viewedPostsId.add(postId);
   };
-  rssForm.addEventListener('submit', handleSubmit);
-  posts.addEventListener('click', handlePostClick);
+  elements.rssForm.addEventListener('submit', handleSubmit);
+  elements.posts.addEventListener('click', handlePostClick);
   updateRss(watchedState);
 };
