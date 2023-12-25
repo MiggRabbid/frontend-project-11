@@ -26,3 +26,12 @@ make dev //для запуска на локальном хосте
 #### Системные требования:
 - Node.js v20.10.0
 - npm 10.2.4
+
+
+#### Используемый стек:
+[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=000&style=flat)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![Bootstrap](https://img.shields.io/badge/Bootstrap-712CF9?style=flat&logo=bootstrap&logoColor=white)](https://getbootstrap.com)
+[![Axios](https://img.shields.io/badge/Axios-5A29E4?style=flat&logo=i18next&logoColor=white)](https://axios-http.com)
+[![i18next](https://img.shields.io/badge/i18next-26A69A?style=flat&logo=i18next&logoColor=white)](https://www.i18next.com)
+[![onChange](https://img.shields.io/badge/onChange-gray?style=flat&logoColor=white)](https://github.com/sindresorhus/on-change)
+[![Webpack](https://img.shields.io/badge/Webpack-1A6BAC?style=flat&logo=webpack&logoColor=white)](https://en.wikipedia.org/wiki/RSS)
